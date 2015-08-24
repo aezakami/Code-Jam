@@ -1,0 +1,242 @@
+package practice;
+
+//A "0/1 string" is a string in which every character is either 0 or 1. There are two operations that can be performed on a 0/1 string:
+//switch: Every 0 becomes 1 and every 1 becomes 0. For example, "100" becomes "011".
+//reverse: The string is reversed. For example, "100" becomes "001".
+//Consider this infinite sequence of 0/1 strings:
+//
+//S0 = ""
+//S1 = "0"
+//S2 = "001"
+//S3 = "0010011"
+//S4 = "001001100011011"
+//...
+//SN = SN-1 + "0" + switch(reverse(SN-1)).
+//You need to figure out the Kth character of Sgoogol, where googol = 10100.
+//
+//Input
+//The first line of the input gives the number of test cases, T. Each of the next T lines contains a number K.
+//
+//Output
+//For each test case, output one line containing "Case #x: y", where x is the test case number (starting from 1) and y is the Kth character of Sgoogol.
+//
+//Limits
+//1 ≤ T ≤ 100.
+//Small dataset
+//1 ≤ K ≤ 105.
+//Large dataset
+//1 ≤ K ≤ 1018.
+//Sample
+//Input 
+//4
+//1
+//2
+//3
+//10
+//
+//Output 
+//Case #1: 0
+//Case #2: 0
+//Case #3: 1
+//Case #4: 0
+//
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.InputMismatchException;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Random;
+import java.util.Set;
+
+
+public class Solution {
+	InputStream is;
+	PrintWriter out;
+	String INPUT = "";
+	static long[] dp = new long[105];
+
+	void solve()
+	{
+		
+		int T = ni();
+		for (int test = 1; test <= T; test++) 
+		{
+			long k = nl();
+			long llog = logarithm(k+1, 2);
+			long high =(long) Math.pow(2, llog+1);
+			out.printf("Case #%d: %d\n",test,divide(1, high, true, k));
+		}
+			
+	}
+	
+	int divide(long low, long high, boolean left, long k)
+	{
+		while(low <= high)
+		{
+			long mid = (low + high)/2l;
+			if(k == mid)
+			{
+				if(left)
+					return 0;
+				else
+					return 1;
+			}
+			if(k<mid)
+			{
+				left  = true;
+				high = mid-1;
+			}
+			else
+			{
+				low = mid+1;
+				left = false;
+			}
+		}
+		return 1;
+	}
+	
+	boolean solveString(int a, long b)
+	{
+	    long sz = dp[a - 1];
+	    if (b < sz)
+	        return solveString(a - 1, b);
+	    else if (b == sz)
+	        return false;
+	    else
+	    {
+	        b -= sz + 1;
+	        return !solveString(a - 1, sz - b - 1);
+	    }
+	}
+	/**
+	 * Function to calculate log base 2 or any base
+	 * @param num  Input number
+	 * @param base  Input base
+	 * @return return Ceil of logN of given base
+	 */
+	long logarithm(long num, int base)
+	{
+		return (long) Math.ceil((Math.log(num)/Math.log(base)));
+	}
+	
+
+	
+	void run() throws Exception
+	{
+		is = INPUT.isEmpty() ? System.in : new ByteArrayInputStream(INPUT.getBytes());
+		out = new PrintWriter(System.out);
+		
+		long s = System.currentTimeMillis();
+		solve();
+		out.flush();
+		if(!INPUT.isEmpty())tr(System.currentTimeMillis()-s+"ms");
+	}
+	
+	public static void main(String[] args) throws Exception { new Solution().run(); }
+	
+	private byte[] inbuf = new byte[1024];
+	private int lenbuf = 0, ptrbuf = 0;
+	
+	private int readByte()
+	{
+		if(lenbuf == -1)throw new InputMismatchException();
+		if(ptrbuf >= lenbuf){
+			ptrbuf = 0;
+			try { lenbuf = is.read(inbuf); } catch (IOException e) { throw new InputMismatchException(); }
+			if(lenbuf <= 0)return -1;
+		}
+		return inbuf[ptrbuf++];
+	}
+	
+	private boolean isSpaceChar(int c) { return !(c >= 33 && c <= 126); }
+	private int skip() { int b; while((b = readByte()) != -1 && isSpaceChar(b)); return b; }
+	
+	private double nd() { return Double.parseDouble(ns()); }
+	private char nc() { return (char)skip(); }
+	
+	private String ns()
+	{
+		int b = skip();
+		StringBuilder sb = new StringBuilder();
+		while(!(isSpaceChar(b))){ // when nextLine, (isSpaceChar(b) && b != ' ')
+			sb.appendCodePoint(b);
+			b = readByte();
+		}
+		return sb.toString();
+	}
+	
+	private char[] ns(int n)
+	{
+		char[] buf = new char[n];
+		int b = skip(), p = 0;
+		while(p < n && !(isSpaceChar(b))){
+			buf[p++] = (char)b;
+			b = readByte();
+		}
+		return n == p ? buf : Arrays.copyOf(buf, p);
+	}
+	
+	private char[][] nm(int n, int m)
+	{
+		char[][] map = new char[n][];
+		for(int i = 0;i < n;i++)map[i] = ns(m);
+		return map;
+	}
+	
+	private int[] na(int n)
+	{
+		int[] a = new int[n];
+		for(int i = 0;i < n;i++)a[i] = ni();
+		return a;
+	}
+	
+	private int ni()
+	{
+		int num = 0, b;
+		boolean minus = false;
+		while((b = readByte()) != -1 && !((b >= '0' && b <= '9') || b == '-'));
+		if(b == '-'){
+			minus = true;
+			b = readByte();
+		}
+		
+		while(true){
+			if(b >= '0' && b <= '9'){
+				num = num * 10 + (b - '0');
+			}else{
+				return minus ? -num : num;
+			}
+			b = readByte();
+		}
+	}
+	
+	private long nl()
+	{
+		long num = 0;
+		int b;
+		boolean minus = false;
+		while((b = readByte()) != -1 && !((b >= '0' && b <= '9') || b == '-'));
+		if(b == '-'){
+			minus = true;
+			b = readByte();
+		}
+		
+		while(true){
+			if(b >= '0' && b <= '9'){
+				num = num * 10 + (b - '0');
+			}else{
+				return minus ? -num : num;
+			}
+			b = readByte();
+		}
+	}
+	
+	private static void tr(Object... o) { System.out.println(Arrays.deepToString(o)); }
+}
