@@ -1,0 +1,320 @@
+//Alex just learned how to program and wants to develop his own version of Snake, with the following rules:
+//
+//The game board has R rows and C columns. The top left cell of the board has coordinates (1, 1), and the bottom right cell has coordinates (R, C).
+//At the start of the game, in every cell with coordinates (r, c) such that r + c is odd, there is one piece of food. No other cells have food.
+//The snake's body is always an ordered, connected sequence of one or more cells on the board. The first cell of the sequence is called the "head" of the snake. The second cell (if any) shares an edge (not just a corner) with the first cell, and so on. The last cell in the sequence is called the "tail" of the snake.
+//The snake's head is always facing in one of four directions: left, up, right, or down.
+//At the start of the game, the snake is at cell (1, 1) and has a length of one (that is, the snake consists of only a head), and the head faces right.
+//At each integer time (1 second, 2 seconds, etc.), the head of the snake will move into the adjacent cell that its head is facing toward. The board is cyclic, i.e., trying to move off an edge will cause the head to appear on the opposite edge of the board. For example, if the snake is at (1, C) and its head is facing right, the head will next move to (1, 1). If the snake is at (1, C) and its head is facing up, the head will next move to (R, C).
+//When the snake's head moves into a cell with no food, the snake does not grow. The snake's second cell (if any) moves to the place where the snake's head was, the snake's third cell (if any) moves to the place where the second cell was, and so on.
+//When the snake's head moves into a cell with a piece of food, it eats the food (meaning that cell no longer has food), and grows its body. A new head is created in the cell where the food was. The cell that was the snake's head becomes the snake's second cell, the cell that was the snake's second cell (if any) becomes the snake's third cell, and so on.
+//If, after a move is complete, the snake's head is in the same place as one of another of its cells, the snake dies and the game ends immediately. (Note that if the snake's head moves toward a cell where its tail was, the game will not end, because the tail will move out of the way before the move is complete.)
+//In the game, the player can let the snake perform some turn actions. Each action Ai will happen between the Tith and Ti+1 th seconds. There are two possible actions: "L" and "R". An "L" action will turn the head 90 degrees to the left, so, for example, if the snake had been facing down before, it would face right after. An "R" action will turn the head 90 degrees to the right, so, for example, if the snake had been facing down before, it would face left after.
+//The game has a time limit: it will end after the move on the 109th second is complete (if the game has even gone on that long!)
+//To test the game, Alex has written a series of TURN actions. Your task is to simulate that series of actions, and tell Alex the final length of the snake when the game is over. Remember that the game can end either because the snake's head and another cell of its body are in the same place after a move is complete, or because time runs out. In the former case, you should count both the head and the overlapping cell of its body as two separate cells, for the purpose of determining length.
+//
+//Input
+//The first line of the input gives the number of test cases, T. T test cases follow. Each test cases starts with three integers S, R, and C, where S gives the number of turn actions and R and C represent the number of rows and columns of the board. S lines follow; the ith of these lines has an integer Xi, then a character Ai that is either L or R. Each of these lines corresponds to performing an action between Xith and Xi+1 th seconds. It's guaranteed that the actions are given in time order and there will never be more than one action between the same two seconds. However, you should note that the game may end before the snake gets to execute all of these actions.
+//Output
+//For each test case, output one line containing "Case #x: y", where x is the test case number (starting from 1) and y is the length of the snake when the game is over.
+//
+//Limits
+//1 ≤ T ≤ 10.
+//Small dataset
+//
+//1 ≤ R, C ≤ 100;
+//1 ≤ S ≤ 100;
+//1 ≤ Xi ≤ 2000.
+//Large dataset
+//
+//1 ≤ R, C ≤ 100000;
+//1 ≤ S ≤ 100000;
+//1 ≤ Xi ≤ 1000000.
+//Sample
+//
+//Input 
+//2
+//3 3 3
+//1 R
+//2 L
+//3 R
+//5 3 3
+//2 R
+//4 R
+//6 R
+//7 R
+//8 R
+//
+//Output 
+//Case #1: 3
+//Case #2: 5
+//
+
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.InputMismatchException;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Random;
+import java.util.Set;
+
+
+public class Solution {
+	InputStream is;
+	PrintWriter out;
+	String INPUT = "";
+	
+	// class to store Pair which can be used to store and hash. As it can check with element to element pair comparison
+	static class Pair
+	{
+		int first;
+		int second;
+		public Pair(int first, int second) 
+		{
+			this.first = first;
+			this.second = second;
+		}
+		public boolean equals(Object obj)
+	    {
+	        if(this == obj)
+	            return true;
+	        if((obj == null) || (obj.getClass() != this.getClass()))
+	            return false;
+	        // object must be Pair at this point
+	        Pair pair = (Pair)obj;
+	        return first == pair.first && (second == pair.second);
+	    }
+
+		@Override
+		public int hashCode()
+		{
+			int hash = 7;
+	        hash = 31 * hash + first;
+	        hash = 31 * hash + second;
+	        return hash;
+		}
+	}
+	
+	void solve()
+	{
+		int LIMIT = (int) 1e9;
+		int dx[] = {0, 1, 0, -1};
+		int dy[] = {1, 0, -1, 0};
+		int T = ni();
+		for (int test = 1; test <= T; test++) 
+		{
+			int m = ni();
+			int R = ni();
+			int C = ni();
+			Map<Pair, Integer> mp = new HashMap<Pair, Integer>();
+			Set<Pair> food = new HashSet<Pair>();
+//			Set<Long> snake = new HashSet<Long>();
+			int[][] act = new int[m+1][2];
+			Pair pair = new Pair(1, 1);
+			
+		    for (int j = 0; j < m; ++j)
+		    {
+		        act[j][0] = ni();
+		        act[j][1] = (nc() == 'R')?1:0;
+		    }
+		    Queue<Pair> queue = new LinkedList<Pair>();
+		    queue.add(pair);
+		    int pos = 0;
+
+		    int d = 0;
+		    int x = 1, y = 1;
+		    long l = 1;
+		    int cnt = 0;
+		    long index;
+//			snake.add(index);
+		    for (int i = 1; i <= LIMIT; ++i)
+		    {
+		    	if (pos == m && cnt >= R + R && cnt >= C + C)
+		        {
+		    		System.err.printf("timeout end\n");
+
+		            System.err.printf("i = %d\n", i);
+		            System.err.printf("x, y = (%d, %d), d = %d\n", x, y, d);
+		            System.err.printf("length = %d\n", l);
+		            System.err.printf("pos = %d, cnt = %d\n", pos, cnt);
+		            break;
+		        }
+
+		    	// move
+		        x += dx[d];
+		        y += dy[d];
+
+		        // loop
+		        if (x <= 0) x = R;
+		        if (x > R) x = 1;
+
+		        if (y <= 0) y = C;
+		        if (y > C) y = 1;
+
+
+		        Pair p = new Pair(x, y);
+		        if (((x + y) & 1) >0 &&  !food.contains(p))
+		        {
+		            food.add(p);
+		            l += 1;
+		            cnt = 0;
+		        }
+
+		        // check end
+		        Integer last = mp.get(p);
+		        if (last == null) last = -10;
+
+		        if (i - l < last)
+		        {
+		            System.err.printf("touch self end\n");
+
+		            System.err.printf("i = %d, last = %d\n", i, last);
+		            System.err.printf("x, y = (%d, %d), d = %d\n", x, y, d);
+		            System.err.printf("length = %d\n", l);
+		            System.err.printf("pos = %d, cnt = %d\n", pos, cnt);
+		            break;
+		        }
+		        mp.put(p, i);
+
+		        // action
+		        if (pos < m && act[pos][0] == i)
+		        {
+		            if (act[pos][1] == 1)
+		                d = (d + 1) % 4;
+		            else
+		                d = (d + 3) % 4;
+
+		            pos++;
+		            cnt = 0;
+		        }
+		        // to check after the all m steps exhausted, it should not go more than one round either in corner or row
+		        cnt ++ ;
+		    	
+
+		    }
+		    out.printf("Case #%d: %d\n", test, l);
+			
+		}
+	}
+	
+
+	
+	void run() throws Exception
+	{
+		is = INPUT.isEmpty() ? System.in : new ByteArrayInputStream(INPUT.getBytes());
+		out = new PrintWriter(System.out);
+		
+		long s = System.currentTimeMillis();
+		solve();
+		out.flush();
+		if(!INPUT.isEmpty())tr(System.currentTimeMillis()-s+"ms");
+	}
+	
+	public static void main(String[] args) throws Exception { new Solution().run(); }
+	
+	private byte[] inbuf = new byte[1024];
+	private int lenbuf = 0, ptrbuf = 0;
+	
+	private int readByte()
+	{
+		if(lenbuf == -1)throw new InputMismatchException();
+		if(ptrbuf >= lenbuf){
+			ptrbuf = 0;
+			try { lenbuf = is.read(inbuf); } catch (IOException e) { throw new InputMismatchException(); }
+			if(lenbuf <= 0)return -1;
+		}
+		return inbuf[ptrbuf++];
+	}
+	
+	private boolean isSpaceChar(int c) { return !(c >= 33 && c <= 126); }
+	private int skip() { int b; while((b = readByte()) != -1 && isSpaceChar(b)); return b; }
+	
+	private double nd() { return Double.parseDouble(ns()); }
+	private char nc() { return (char)skip(); }
+	
+	private String ns()
+	{
+		int b = skip();
+		StringBuilder sb = new StringBuilder();
+		while(!(isSpaceChar(b))){ // when nextLine, (isSpaceChar(b) && b != ' ')
+			sb.appendCodePoint(b);
+			b = readByte();
+		}
+		return sb.toString();
+	}
+	
+	private char[] ns(int n)
+	{
+		char[] buf = new char[n];
+		int b = skip(), p = 0;
+		while(p < n && !(isSpaceChar(b))){
+			buf[p++] = (char)b;
+			b = readByte();
+		}
+		return n == p ? buf : Arrays.copyOf(buf, p);
+	}
+	
+	private char[][] nm(int n, int m)
+	{
+		char[][] map = new char[n][];
+		for(int i = 0;i < n;i++)map[i] = ns(m);
+		return map;
+	}
+	
+	private int[] na(int n)
+	{
+		int[] a = new int[n];
+		for(int i = 0;i < n;i++)a[i] = ni();
+		return a;
+	}
+	
+	private int ni()
+	{
+		int num = 0, b;
+		boolean minus = false;
+		while((b = readByte()) != -1 && !((b >= '0' && b <= '9') || b == '-'));
+		if(b == '-'){
+			minus = true;
+			b = readByte();
+		}
+		
+		while(true){
+			if(b >= '0' && b <= '9'){
+				num = num * 10 + (b - '0');
+			}else{
+				return minus ? -num : num;
+			}
+			b = readByte();
+		}
+	}
+	
+	private long nl()
+	{
+		long num = 0;
+		int b;
+		boolean minus = false;
+		while((b = readByte()) != -1 && !((b >= '0' && b <= '9') || b == '-'));
+		if(b == '-'){
+			minus = true;
+			b = readByte();
+		}
+		
+		while(true){
+			if(b >= '0' && b <= '9'){
+				num = num * 10 + (b - '0');
+			}else{
+				return minus ? -num : num;
+			}
+			b = readByte();
+		}
+	}
+	
+	private static void tr(Object... o) { System.out.println(Arrays.deepToString(o)); }
+}
