@@ -1,0 +1,186 @@
+
+/**
+ * Problem
+The Hamjet is a true marvel of aircraft engineering. It is a jet airplane with a single engine so powerful that it burns all of its fuel instantly during takeoff. The Hamjet doesn't have any wings because who needs them when the fuselage is made of a special Wonderflonium isotope that makes it impervious to harm.
+Piloting the Hamjet is a not a job for your typical, meek-bodied superhero. That's why the Hamjet belongs to Captain Hammer, who is himself impervious to harm. The G-forces that the pilot endures when taking a trip in the Hamjet are legen-dary.
+The Hamjet takes off at an angle of θ degrees up and a speed of V meters per second. V is a fixed value that is determined by the awesome power of the Hamjet engine and the capacity of its fuel tank. The destination is D meters away. Your job is to program the Hamjet's computer to calculate θ given V and D.
+Fortunately, the Hamjet's Wondeflonium hull is impervious to air friction. Even more fortunately, the Hamjet doesn't fly too far or too high, so you can assume that the Earth is flat, and that the acceleration due to gravity is a constant 9.8 m/s2 down.
+
+Input
+The first line of the input gives the number of test cases, T. T lines follow. Each line will contain two positive integers -- V and D.
+Output
+For each test case, output one line containing "Case #x: θ", where x is the case number (starting from 1) and θ is in degrees up from the the horizontal. If there are several possible answers, output the smallest positive one.
+An answer will be considered correct if it is within 10-6 of the exact answer, in absolute or relative error. See the FAQ for an explanation of what that means, and what formats of floating-point numbers we accept.
+
+Limits
+1 ≤ T ≤ 4500;
+1 ≤ V ≤ 300;
+1 ≤ D ≤ 10000;
+It is guaranteed that each test case will be solvable.
+
+Sample
+Input 
+3
+98 980
+98 490
+299 1234
+Output 
+Case #1: 45.0000000
+Case #2: 15.0000000
+Case #3: 3.8870928
+
+ */
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.InputMismatchException;
+
+/**
+ * 
+ * @author animesh
+ *
+ */
+public class Solution {
+	InputStream is;
+	PrintWriter out;
+	String INPUT = "";
+
+
+	void solve()
+	{
+		int testCases = ni();
+		for(int i=0; i<testCases; i++)
+		{
+			int v = ni();
+			int d = ni();
+			double theta = Math.asin(d * 9.8 / v / v )* 180 / ( 2 * Math.PI);
+			// read the matrix
+			if(Double.isNaN(theta))
+				System.out.printf("Case #%d: 45.0000000\n",(i+1));
+			else
+			{
+//				theta = Math.floor(theta*10000000);
+//				System.out.printf("Case #%d: %.7f\n",(i+1),theta/10000000);
+				System.out.printf("Case #%d: %.7f\n",(i+1),theta);
+			}
+			
+		}
+	}
+
+	
+	
+	void run() throws Exception
+	{
+		is = INPUT.isEmpty() ? System.in : new ByteArrayInputStream(INPUT.getBytes());
+		out = new PrintWriter(System.out);
+		
+		long s = System.currentTimeMillis();
+		solve();
+		out.flush();
+		if(!INPUT.isEmpty())tr(System.currentTimeMillis()-s+"ms");
+	}
+	
+	public static void main(String[] args) throws Exception { new Solution().run(); }
+	
+	private byte[] inbuf = new byte[1024];
+	private int lenbuf = 0, ptrbuf = 0;
+	
+	private int readByte()
+	{
+		if(lenbuf == -1)throw new InputMismatchException();
+		if(ptrbuf >= lenbuf){
+			ptrbuf = 0;
+			try { lenbuf = is.read(inbuf); } catch (IOException e) { throw new InputMismatchException(); }
+			if(lenbuf <= 0)return -1;
+		}
+		return inbuf[ptrbuf++];
+	}
+	
+	private boolean isSpaceChar(int c) { return !(c >= 33 && c <= 126); }
+	private int skip() { int b; while((b = readByte()) != -1 && isSpaceChar(b)); return b; }
+	
+	private double nd() { return Double.parseDouble(ns()); }
+	private char nc() { return (char)skip(); }
+	
+	private String ns()
+	{
+		int b = skip();
+		StringBuilder sb = new StringBuilder();
+		while(!(isSpaceChar(b))){ // when nextLine, (isSpaceChar(b) && b != ' ')
+			sb.appendCodePoint(b);
+			b = readByte();
+		}
+		return sb.toString();
+	}
+	
+	private char[] ns(int n)
+	{
+		char[] buf = new char[n];
+		int b = skip(), p = 0;
+		while(p < n && !(isSpaceChar(b))){
+			buf[p++] = (char)b;
+			b = readByte();
+		}
+		return n == p ? buf : Arrays.copyOf(buf, p);
+	}
+	
+	private char[][] nm(int n, int m)
+	{
+		char[][] map = new char[n][];
+		for(int i = 0;i < n;i++)map[i] = ns(m);
+		return map;
+	}
+	
+	private int[] na(int n)
+	{
+		int[] a = new int[n];
+		for(int i = 0;i < n;i++)a[i] = ni();
+		return a;
+	}
+	
+	private int ni()
+	{
+		int num = 0, b;
+		boolean minus = false;
+		while((b = readByte()) != -1 && !((b >= '0' && b <= '9') || b == '-'));
+		if(b == '-'){
+			minus = true;
+			b = readByte();
+		}
+		
+		while(true){
+			if(b >= '0' && b <= '9'){
+				num = num * 10 + (b - '0');
+			}else{
+				return minus ? -num : num;
+			}
+			b = readByte();
+		}
+	}
+	
+	private long nl()
+	{
+		long num = 0;
+		int b;
+		boolean minus = false;
+		while((b = readByte()) != -1 && !((b >= '0' && b <= '9') || b == '-'));
+		if(b == '-'){
+			minus = true;
+			b = readByte();
+		}
+		
+		while(true){
+			if(b >= '0' && b <= '9'){
+				num = num * 10 + (b - '0');
+			}else{
+				return minus ? -num : num;
+			}
+			b = readByte();
+		}
+	}
+	
+	private static void tr(Object... o) { System.out.println(Arrays.deepToString(o)); }
+}
