@@ -59,14 +59,6 @@ public class Solution {
 	PrintWriter out;
 	String INPUT = "";
 	
-	public void binaryHeap(int[] arr, int n)
-	{
-		for(int i=n/2; i>=0; i--)
-		{
-			
-		}
-	}
-	
 	void solve()
 	{
 		int testCases = ni();
